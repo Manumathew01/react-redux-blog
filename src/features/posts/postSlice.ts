@@ -2,7 +2,15 @@ import { createSlice } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
 import { IPost, IAllPosts } from '../../typings'
 
-const initialState: IAllPosts = { allPosts: [] }
+const defaultCurrentPost: IPost = {
+  id: 0,
+  title: '',
+  content: '',
+  voteCount: 0,
+  isFavorite: false
+}
+
+const initialState: IAllPosts = { allPosts: [], currentPost: defaultCurrentPost }
 
 export const postSlice = createSlice({
   name: 'allPosts',
@@ -10,6 +18,15 @@ export const postSlice = createSlice({
   reducers: {
     saveBlogPost: (state, actions: { payload: IPost }) => {
       state.allPosts.push(actions.payload)
+    },
+
+    deleteBlogPost: (state, actions: { payload: number }) => {
+      state.allPosts.splice(
+        state.allPosts.findIndex((i) => {
+          return i.id === actions.payload
+        }),
+        1
+      )
     },
 
     upvoteBlogPost: (state, actions: { payload: number }) => {
@@ -40,11 +57,27 @@ export const postSlice = createSlice({
         return post
       })
       state.allPosts = updatedPosts
+    },
+
+    setCurrentPost: (state, actions: { payload: IPost }) => {
+      state.currentPost = actions.payload
+      return state
+    },
+
+    updateBlogPost: (state, actions: { payload: { id: number; content: string; title: string } }) => {
+      const updatedPosts = state.allPosts.map((post) => {
+        if (post.id === actions.payload.id) {
+          return { ...post, content: actions.payload.content, title: actions.payload.title }
+        }
+        return post
+      })
+      state.allPosts = updatedPosts
     }
   }
 })
 
-export const { saveBlogPost, upvoteBlogPost, downvoteBlogPost, toggleFavorite } = postSlice.actions
+export const { saveBlogPost, deleteBlogPost, upvoteBlogPost, downvoteBlogPost, toggleFavorite, setCurrentPost, updateBlogPost } =
+  postSlice.actions
 
 export const selectAllPosts = (state: RootState) => state.posts
 

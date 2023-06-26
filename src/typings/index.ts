@@ -12,4 +12,5 @@ export interface INavigationState {
 
 export interface IAllPosts {
   allPosts: IPost[]
+  currentPost: IPost
 }
